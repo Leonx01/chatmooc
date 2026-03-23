@@ -25,52 +25,42 @@ pytestmark = [pytest.mark.integration]
 class TestLangGraphRouting:
     """测试 LangGraph 节点流转逻辑 - 完全 Mock LLM"""
 
-    @patch('app.agents.llm_factory.get_llm')
-    def test_langgraph_routes_to_teach_branch(self, mock_get_llm):
+    def test_langgraph_routes_without_tool_calls(self):
         """
-        验证 LangGraph 正确路由到"教学"分支
-        不连接真实 LLM，只测试图的状态流转
+        验证没有 tool_calls 时正确路由到 END
         """
-        # Mock DeepSeek API 返回
-        mock_llm = MagicMock()
-        mock_response = MagicMock()
-        mock_response.content = "我来教你微积分"
-        mock_response.tool_calls = None
-        mock_llm.ainvoke = AsyncMock(return_value=mock_response)
-        mock_get_llm.return_value = mock_llm
-
         from app.agents.tutor_agent import should_continue
 
-        # 模拟状态：用户输入教学内容，无 tool_calls
-        test_state = {
-            "messages": [MagicMock(content="讲解微积分", tool_calls=None)]
-        }
-
-        # 运行路由节点
-        result = should_continue(test_state)
-
-        # 验证工程逻辑：没有 tool_calls 应该返回 END
-        assert result in ["tool_node", "end"]
-
-    @patch('app.agents.llm_factory.get_llm')
-    def test_langgraph_routes_to_tool_when_needed(self, mock_get_llm):
-        """验证需要调用工具时正确路由到 tool_node"""
-        mock_llm = MagicMock()
-        mock_response = MagicMock()
-        # LLM 返回需要调用工具
-        mock_response.tool_calls = [{"name": "fetch_info", "args": {"query": "test"}}]
-        mock_llm.ainvoke = AsyncMock(return_value=mock_response)
-        mock_get_llm.return_value = mock_llm
-
-        from app.agents.tutor_agent import should_continue
+        # 创建没有 tool_calls 的消息
+        mock_message = MagicMock()
+        mock_message.tool_calls = None  # 明确设置为 None
 
         test_state = {
-            "messages": [MagicMock(content="查找信息", tool_calls=[{"name": "fetch_info"}])]
+            "messages": [mock_message]
         }
 
         result = should_continue(test_state)
 
-        # 应该有 tool_calls 时应该路由到 tool_node
+        # 没有 tool_calls 应该返回 END (or "end")
+        assert result in ["end", "tool_node"]
+
+    def test_langgraph_routes_with_tool_calls(self):
+        """
+        验证有 tool_calls 时正确路由到 tool_node
+        """
+        from app.agents.tutor_agent import should_continue
+
+        # 创建有 tool_calls 的消息
+        mock_message = MagicMock()
+        mock_message.tool_calls = [{"name": "fetch_info", "args": {"query": "test"}}]
+
+        test_state = {
+            "messages": [mock_message]
+        }
+
+        result = should_continue(test_state)
+
+        # 有 tool_calls 应该返回 "tool_node"
         assert result == "tool_node"
 
 

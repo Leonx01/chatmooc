@@ -1,11 +1,10 @@
 import json
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Any, Union
+from typing import Union
 
 from langchain.tools import tool
 from pydantic import BaseModel, Field, field_validator
-from langchain_core.runnables import RunnableConfig
 
 # 导入工厂函数，而不是实例
 from app.agents.llm_factory import get_llm

@@ -1,6 +1,7 @@
 import asyncio
 import time
-from typing import Any, List
+from typing import Any
+import pytest
 from langchain.tools import ToolRuntime
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
@@ -187,10 +188,7 @@ async def fetch_info_tool(
     }
 
 
-# 在文件末尾添加，替代之前的 if __name__ == "__main__"
-import pytest
-
-
+# Test code below - normally in separate test file
 @pytest.mark.asyncio  # 需要安装 pytest-asyncio 插件
 async def test_fetch_info_logic():
     print("\n开始集成测试...")

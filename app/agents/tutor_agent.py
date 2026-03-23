@@ -1,7 +1,9 @@
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal, Optional
+from typing import List, Literal, Optional
+
+from pydantic import BaseModel, Field
 
 from langchain_core.messages import SystemMessage
 from langchain_core.runnables import RunnableConfig
@@ -209,9 +211,6 @@ def should_continue(state: MessagesState) -> Literal["tool_node", END]:
         return "tool_node"
     return END
 
-
-from pydantic import BaseModel, Field
-from typing import List
 
 class GraphConfig(BaseModel):
     # 去掉 default，在 Studio UI 中它会标记为必填，不填无法运行

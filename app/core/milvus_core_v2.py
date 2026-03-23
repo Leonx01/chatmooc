@@ -26,7 +26,6 @@ class HybridVectorManager:
         self._model: BGEM3EmbeddingFunction | None = None
         self._init_lock = Lock()
 
-        # 配置信息：与 chatmooc_dev 截图保持一致
         self.collection_name = "chatmooc_dev"
         self.dim = 1024
 
@@ -120,7 +119,8 @@ class HybridVectorManager:
     @staticmethod
     def _parse_results(raw_results):
         formatted = []
-        if not raw_results or len(raw_results) == 0: return formatted
+        if not raw_results or len(raw_results) == 0:
+            return formatted
         for hit in raw_results[0]:
             entity = hit.get("entity")
             formatted.append({

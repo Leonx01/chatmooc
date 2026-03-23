@@ -12,9 +12,9 @@ from app.agents.tutor_agent import get_agent
 from app.core.celery_core import celery_app
 from app.core.config import settings
 from app.core.storage import resolve_local_parsed_dir, resolve_local_storage_dir
+from prometheus_fastapi_instrumentator import Instrumentator
 
 logger = logging.getLogger("chatmooc.app")
-from prometheus_fastapi_instrumentator import Instrumentator
 
 # This line initializes the metrics and exposes the /metrics endpoint
 

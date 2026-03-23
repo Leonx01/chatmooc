@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from sqlalchemy import DateTime, ForeignKeyConstraint, Index, Integer, JSON, LargeBinary, String, Text, text
+from sqlalchemy import DateTime, ForeignKeyConstraint, Index, Integer, JSON, String, Text, text
 from sqlalchemy.dialects.mysql import CHAR, INTEGER, LONGTEXT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

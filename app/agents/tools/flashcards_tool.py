@@ -1,11 +1,9 @@
 import json
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Union, Annotated, Optional
+from typing import Union
 
 from langchain.tools import tool
-from langchain_core.runnables import RunnableConfig
-from langchain_core.tools import InjectedToolArg
 from pydantic import BaseModel, Field, field_validator
 
 # 1. 关键：导入工厂函数，切断 import 时的实例化链条

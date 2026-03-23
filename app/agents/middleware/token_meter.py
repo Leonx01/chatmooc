@@ -3,7 +3,8 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 import tiktoken
-from langchain.agents.middleware import AgentMiddleware, ModelRequest, ModelResponse
+from langchain.agents.middleware import (AgentMiddleware, ModelRequest,
+                                         ModelResponse)
 from langchain_core.messages import get_buffer_string
 
 

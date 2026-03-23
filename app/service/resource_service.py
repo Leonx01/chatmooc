@@ -19,11 +19,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.celery_core import celery_app
 from app.core.milvus_core import vector_manager
-from app.core.storage import (
-    get_storage_backend,
-    get_storage_backend_for_provider,
-    resolve_local_parsed_dir,
-)
+from app.core.storage import (get_storage_backend,
+                              get_storage_backend_for_provider,
+                              resolve_local_parsed_dir)
 from app.models import Resources
 from app.service.user_service import get_db
 

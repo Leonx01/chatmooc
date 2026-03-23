@@ -10,7 +10,6 @@ from redis.exceptions import NoScriptError
 
 from app.core.config import settings
 
-
 _TOKEN_BUCKET_LUA = """
 local key = KEYS[1]
 local now = tonumber(ARGV[1])
@@ -77,7 +76,9 @@ class RedisClient:
         self.password = password or settings.REDIS_PASSWORD or None
         self.key_prefix = (key_prefix or settings.REDIS_KEY_PREFIX).rstrip(":")
         self.default_capacity = default_capacity or settings.RATE_LIMIT_CAPACITY
-        self.default_refill_rate = default_refill_rate or settings.RATE_LIMIT_REFILL_RATE
+        self.default_refill_rate = (
+            default_refill_rate or settings.RATE_LIMIT_REFILL_RATE
+        )
         self.default_ttl_seconds = (
             default_ttl_seconds
             if default_ttl_seconds is not None
@@ -94,7 +95,9 @@ class RedisClient:
 
     async def _get_client(self) -> Redis:
         if self._redis is None:
-            self._redis = Redis.from_url(self.url, password=self.password, decode_responses=True)
+            self._redis = Redis.from_url(
+                self.url, password=self.password, decode_responses=True
+            )
         return self._redis
 
     def _bucket_key(self, bucket_id: str) -> str:
@@ -173,7 +176,10 @@ class RedisClient:
         data = await client.hgetall(key)
         if not data:
             return {"tokens": float(self.default_capacity), "timestamp": time.time()}
-        return {"tokens": float(data.get("tokens", 0)), "timestamp": float(data.get("timestamp", 0))}
+        return {
+            "tokens": float(data.get("tokens", 0)),
+            "timestamp": float(data.get("timestamp", 0)),
+        }
 
     async def ping(self) -> bool:
         client = await self._get_client()

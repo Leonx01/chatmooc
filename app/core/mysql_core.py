@@ -1,24 +1,19 @@
 import contextlib
 from typing import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    create_async_engine,
-    async_sessionmaker,
-    AsyncEngine
-)
+from sqlalchemy.ext.asyncio import (AsyncEngine, AsyncSession,
+                                    async_sessionmaker, create_async_engine)
 from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import settings
 
 # 构造异步连接字符串
-ASYNC_SQLALCHEMY_URI = (
-    f"mysql+asyncmy://{settings.MYSQL_USER}:{settings.MYSQL_PASSWORD}@{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{settings.MYSQL_DATABASE}"
-)
+ASYNC_SQLALCHEMY_URI = f"mysql+asyncmy://{settings.MYSQL_USER}:{settings.MYSQL_PASSWORD}@{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{settings.MYSQL_DATABASE}"
 
 
 class Base(DeclarativeBase):
     """所有 ORM 模型的基类"""
+
     pass
 
 
@@ -27,13 +22,14 @@ class DatabaseManager:
         # 1. 创建异步引擎
         self.engine: AsyncEngine = create_async_engine(
             host,
-            **engine_kwargs or {
+            **engine_kwargs
+            or {
                 "pool_size": 10,  # 连接池基础大小
                 "max_overflow": 20,  # 允许超过 pool_size 的最大连接数
                 "pool_pre_ping": True,  # 每次借出连接时先探活，避免使用失效连接
                 "pool_recycle": 1800,  # 连接回收时间（秒）
                 "echo": True,  # 生产环境建议 False，设为 True 可看 SQL 日志
-            }
+            },
         )
 
         # 2. 创建异步 Session 工厂
@@ -42,7 +38,7 @@ class DatabaseManager:
             autocommit=False,
             autoflush=False,
             expire_on_commit=False,
-            class_=AsyncSession
+            class_=AsyncSession,
         )
 
     @contextlib.asynccontextmanager

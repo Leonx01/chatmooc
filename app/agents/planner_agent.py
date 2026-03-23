@@ -15,6 +15,7 @@ from app.agents.tools.fetch_info_tool import fetch_info_tool
 
 TOOLS = [fetch_info_tool]
 
+
 class Unit(TypedDict):
     id: str  # Format: unit_n
     title: str  # Unit name
@@ -114,7 +115,9 @@ async def planner_node(state: State) -> dict[str, Any]:
     user_prompt = f"**Resource**:\n{resource}\n\n**Level**:\n{level}"
 
     # 修改 1: 使用 ainvoke 异步调用 LLM
-    resp = await llm.ainvoke([SystemMessage(content=system_prompt), HumanMessage(content=user_prompt)])
+    resp = await llm.ainvoke(
+        [SystemMessage(content=system_prompt), HumanMessage(content=user_prompt)]
+    )
     parsed = parse_json_markdown(resp.content)
     introduction, units = _normalize_plan(parsed if isinstance(parsed, dict) else {})
     return {"introduction": introduction, "units": units}
@@ -156,7 +159,9 @@ async def executor_node(state: WorkerState) -> dict[str, Any]:
             else:
                 # 修改 3: 异步调用 Tool
                 observation = await tool.ainvoke(tool_call.get("args", {}))
-            messages.append(ToolMessage(content=str(observation), tool_call_id=tool_call["id"]))
+            messages.append(
+                ToolMessage(content=str(observation), tool_call_id=tool_call["id"])
+            )
 
     final_text = ""
     for msg in reversed(messages):

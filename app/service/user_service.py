@@ -13,15 +13,11 @@ class UserService:
         self._session = session
 
     async def get_by_uname(self, uname: str) -> Optional[Users]:
-        result = await self._session.execute(
-            select(Users).where(Users.uname == uname)
-        )
+        result = await self._session.execute(select(Users).where(Users.uname == uname))
         return result.scalar_one_or_none()
 
     async def get_by_uid(self, uid: str) -> Optional[Users]:
-        result = await self._session.execute(
-            select(Users).where(Users.uid == uid)
-        )
+        result = await self._session.execute(select(Users).where(Users.uid == uid))
         return result.scalar_one_or_none()
 
     async def authenticate(self, username: str, password: str) -> Optional[Users]:

@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass(frozen=True)
 class Pricing:
     """Price per 1K tokens."""
+
     prompt_per_1k: float = 0.0
     completion_per_1k: float = 0.0
 
@@ -73,8 +74,12 @@ class MeteringCallbackHandler(BaseCallbackHandler):
                     additional_kwargs = getattr(message, "additional_kwargs", {})
                     token_usage = additional_kwargs.get("token_usage", {})
                     # 某些模型可能用 input_tokens，有些用 prompt_tokens，做个兼容
-                    prompt_tokens = token_usage.get("prompt_tokens") or token_usage.get("input_tokens", 0)
-                    completion_tokens = token_usage.get("completion_tokens") or token_usage.get("output_tokens", 0)
+                    prompt_tokens = token_usage.get("prompt_tokens") or token_usage.get(
+                        "input_tokens", 0
+                    )
+                    completion_tokens = token_usage.get(
+                        "completion_tokens"
+                    ) or token_usage.get("output_tokens", 0)
             except (IndexError, AttributeError):
                 pass
 
@@ -143,7 +148,9 @@ def available_llms() -> list[str]:
 def get_llm(name: str | None = None, temperature: float = 0.0) -> BaseChatModel:
     target = (name or DEFAULT_LLM_NAME).lower()
     if target not in MODEL_REGISTRY:
-        raise KeyError(f"Unknown LLM '{target}'. Available: {', '.join(available_llms())}")
+        raise KeyError(
+            f"Unknown LLM '{target}'. Available: {', '.join(available_llms())}"
+        )
 
     cfg = MODEL_REGISTRY[target]
 
@@ -163,7 +170,9 @@ def get_llm(name: str | None = None, temperature: float = 0.0) -> BaseChatModel:
 
     # 重点：将计费回调注入到模型的 Runnable 配置中
     # 这样返回的依然是 BaseChatModel，你可以随意 bind_tools() 或者 stream()
-    metering_callback = MeteringCallbackHandler(name=target, pricing=cfg.pricing, log=logger)
+    metering_callback = MeteringCallbackHandler(
+        name=target, pricing=cfg.pricing, log=logger
+    )
     return base_llm.with_config(callbacks=[metering_callback])
 
 

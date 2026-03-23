@@ -2,9 +2,9 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 _ENV_FILE = _PROJECT_ROOT / ".env"
+
 
 class Settings(BaseSettings):
     # Pydantic v2: use SettingsConfigDict (v1-style inner Config is ignored).
@@ -89,6 +89,7 @@ class Settings(BaseSettings):
     OSS_ACCESS_KEY: str = ""
     OSS_SECRET_KEY: str = ""
     OSS_PUBLIC_BASE_URL: str = ""
+
 
 settings = Settings()
 

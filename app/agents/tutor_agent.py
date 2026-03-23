@@ -3,22 +3,20 @@ from functools import lru_cache
 from pathlib import Path
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel, Field
-
 from langchain_core.messages import SystemMessage
 from langchain_core.runnables import RunnableConfig
 from langgraph.constants import END, START
 from langgraph.graph import MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
+from pydantic import BaseModel, Field
 
 # 1. 改为导入工厂函数，不要导入实例化的 llm
-from app.agents.checkpointer import ensure_agent_checkpointer_sync, get_agent_checkpointer
+from app.agents.checkpointer import (ensure_agent_checkpointer_sync,
+                                     get_agent_checkpointer)
 from app.agents.llm_factory import get_llm
-from app.agents.memory_store import (
-    ensure_agent_memory_store_sync,
-    get_agent_memory_store,
-    init_agent_memory_store,
-)
+from app.agents.memory_store import (ensure_agent_memory_store_sync,
+                                     get_agent_memory_store,
+                                     init_agent_memory_store)
 from app.agents.tools import TOOLS
 from app.core.config import settings
 
@@ -28,6 +26,7 @@ PROMPT_PATH = BASE_DIR / "prompts" / "tutor.md"
 
 
 # ===== Helpers =====
+
 
 @lru_cache(maxsize=1)
 def get_cached_prompt() -> str:
@@ -98,9 +97,9 @@ def _memory_line_from_item(item: object) -> Optional[str]:
 
 
 async def _build_memory_context(
-        messages: list[object],
-        user_id: Optional[str],
-        unit_id: Optional[str],
+    messages: list[object],
+    user_id: Optional[str],
+    unit_id: Optional[str],
 ) -> str:
     if not user_id:
         raise ValueError(
@@ -156,6 +155,7 @@ async def _build_memory_context(
 
 # ===== Nodes =====
 
+
 async def llm_call(state: MessagesState, config: RunnableConfig):
     """
     在这里才进行模型实例化和工具绑定。
@@ -196,14 +196,12 @@ async def llm_call(state: MessagesState, config: RunnableConfig):
     messages = [SystemMessage(content=system_prompt)] + state["messages"]
 
     # 异步调用
-    response = await llm_with_tools.ainvoke(
-        messages,
-        config=config
-    )
+    response = await llm_with_tools.ainvoke(messages, config=config)
     return {"messages": [response]}
 
 
 # ===== Logic & Graph =====
+
 
 def should_continue(state: MessagesState) -> Literal["tool_node", END]:
     last_message = state["messages"][-1]
@@ -214,18 +212,10 @@ def should_continue(state: MessagesState) -> Literal["tool_node", END]:
 
 class GraphConfig(BaseModel):
     # 去掉 default，在 Studio UI 中它会标记为必填，不填无法运行
-    user_id: str = Field(
-        ...,
-        description="用户的唯一标识符 (必填)"
-    )
-    unit_id: str = Field(
-        ...,
-        description="单元的唯一标识符 (必填)"
-    )
-    resource_ids: List[str] = Field(
-        ...,
-        description="资源的唯一标识符列表 (必填)"
-    )
+    user_id: str = Field(..., description="用户的唯一标识符 (必填)")
+    unit_id: str = Field(..., description="单元的唯一标识符 (必填)")
+    resource_ids: List[str] = Field(..., description="资源的唯一标识符列表 (必填)")
+
 
 # 初始化时传入 schema
 agent_builder = StateGraph(MessagesState, config_schema=GraphConfig)
@@ -234,9 +224,7 @@ agent_builder.add_node("llm_call", llm_call)
 agent_builder.add_node("tool_node", ToolNode(TOOLS))
 agent_builder.add_edge(START, "llm_call")
 agent_builder.add_conditional_edges(
-    "llm_call",
-    should_continue,
-    {"tool_node": "tool_node", END: END}  # 显式映射
+    "llm_call", should_continue, {"tool_node": "tool_node", END: END}  # 显式映射
 )
 agent_builder.add_edge("tool_node", "llm_call")
 

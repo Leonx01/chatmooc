@@ -55,8 +55,8 @@ Thumbs.db
 # Logs
 *.log
 
-# thougt
-thougt/
+# thought
+thought/
 
 # Docker volumes
 volumes/

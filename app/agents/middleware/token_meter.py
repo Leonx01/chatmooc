@@ -3,13 +3,15 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 import tiktoken
-from langchain.agents.middleware import AgentMiddleware, ModelRequest, ModelResponse
+from langchain.agents.middleware import (AgentMiddleware, ModelRequest,
+                                         ModelResponse)
 from langchain_core.messages import get_buffer_string
 
 
 @dataclass(frozen=True)
 class Pricing:
     """Price per 1K tokens."""
+
     prompt_per_1k: float = 0.0
     completion_per_1k: float = 0.0
 
@@ -22,7 +24,9 @@ class LLMConfig:
     pricing: Pricing = Pricing()
 
 
-def count_tokens_with_tiktoken(text_or_messages: Any, model_name: str = "gpt-4o") -> int:
+def count_tokens_with_tiktoken(
+    text_or_messages: Any, model_name: str = "gpt-4o"
+) -> int:
     """使用 tiktoken 计算 token 数量"""
     try:
         encoding = tiktoken.encoding_for_model(model_name)
@@ -47,15 +51,12 @@ class TiktokenMeteringMiddleware(AgentMiddleware):
         self.config = config
 
     def wrap_model_call(
-            self,
-            request: ModelRequest,
-            handler: Callable[[ModelRequest], ModelResponse]
+        self, request: ModelRequest, handler: Callable[[ModelRequest], ModelResponse]
     ) -> ModelResponse:
         # --- [1. 请求前：计算 Prompt Tokens] ---
         # request.messages 是当前的上下文消息列表
         prompt_tokens = count_tokens_with_tiktoken(
-            request.messages,
-            model_name=self.config.model_name
+            request.messages, model_name=self.config.model_name
         )
 
         # --- [2. 执行模型调用] ---
@@ -63,16 +64,19 @@ class TiktokenMeteringMiddleware(AgentMiddleware):
 
         # --- [3. 请求后：计算 Completion Tokens] ---
         # response.result 通常是 AIMessage
-        completion_text = response.result.content if hasattr(response.result, "content") else ""
+        completion_text = (
+            response.result.content if hasattr(response.result, "content") else ""
+        )
         completion_tokens = count_tokens_with_tiktoken(
-            completion_text,
-            model_name=self.config.model_name
+            completion_text, model_name=self.config.model_name
         )
 
         # --- [4. 成本计算与日志] ---
         total_tokens = prompt_tokens + completion_tokens
-        cost = (prompt_tokens / 1000 * self.config.pricing.prompt_per_1k +
-                completion_tokens / 1000 * self.config.pricing.completion_per_1k)
+        cost = (
+            prompt_tokens / 1000 * self.config.pricing.prompt_per_1k
+            + completion_tokens / 1000 * self.config.pricing.completion_per_1k
+        )
 
         logging.info(
             f"Middleware(Tiktoken) | {self.name} | "

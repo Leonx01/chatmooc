@@ -1,8 +1,9 @@
 from functools import partial
 
-from fastapi import Depends,APIRouter
+from fastapi import APIRouter, Depends
 
 from app.api.deps import rate_limiter
+
 router = APIRouter(prefix="/test", tags=["test"])
 # 场景：普通接口，每秒 2 个，桶容量 5
 standard_limit = partial(rate_limiter, capacity=5, rate=2.0, prefix="std")

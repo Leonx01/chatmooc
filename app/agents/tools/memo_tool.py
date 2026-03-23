@@ -1,7 +1,7 @@
 import logging
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Optional, List, Literal
+from typing import Any, List, Literal, Optional
 
 from langchain.tools import ToolRuntime
 from langchain_core.tools import tool
@@ -14,12 +14,16 @@ logger = logging.getLogger(__name__)
 
 
 class MemoInput(BaseModel):
-    summary: str = Field(..., min_length=1, description="Concise long-term memory summary.")
+    summary: str = Field(
+        ..., min_length=1, description="Concise long-term memory summary."
+    )
     category: Literal["progress", "gap", "preference", "note"] = Field(
         default="progress",
         description="Memory type for retrieval routing.",
     )
-    trigger: Literal["stage_complete", "learner_gap", "user_preference", "general_note"] = Field(
+    trigger: Literal[
+        "stage_complete", "learner_gap", "user_preference", "general_note"
+    ] = Field(
         default="general_note",
         description="Why this memory is written now.",
     )
@@ -27,7 +31,9 @@ class MemoInput(BaseModel):
         default=None,
         description="Optional learning stage identifier, e.g. Stage 2 / 基础概念.",
     )
-    tags: Optional[List[str]] = Field(default=None, description="Optional tags for retrieval.")
+    tags: Optional[List[str]] = Field(
+        default=None, description="Optional tags for retrieval."
+    )
 
 
 @tool("memo_tool", args_schema=MemoInput)
@@ -35,7 +41,9 @@ async def memo_tool(
     summary: str,
     runtime: ToolRuntime,
     category: Literal["progress", "gap", "preference", "note"] = "progress",
-    trigger: Literal["stage_complete", "learner_gap", "user_preference", "general_note"] = "general_note",
+    trigger: Literal[
+        "stage_complete", "learner_gap", "user_preference", "general_note"
+    ] = "general_note",
     stage: Optional[str] = None,
     tags: Optional[List[str]] = None,
 ) -> dict[str, Any]:
@@ -74,7 +82,9 @@ async def memo_tool(
             "status": "failed",
             "message": "memo_tool requires runtime.context.unit_id.",
             "required_keys": ["unit_id"],
-            "have_context_keys": sorted(list(context.keys())) if isinstance(context, dict) else None,
+            "have_context_keys": (
+                sorted(list(context.keys())) if isinstance(context, dict) else None
+            ),
             "have_configurable_keys": sorted(list(configurable.keys())),
         }
     if not user_id:
@@ -82,7 +92,9 @@ async def memo_tool(
             "status": "failed",
             "message": "memo_tool requires runtime.context.user_id.",
             "required_keys": ["user_id"],
-            "have_context_keys": sorted(list(context.keys())) if isinstance(context, dict) else None,
+            "have_context_keys": (
+                sorted(list(context.keys())) if isinstance(context, dict) else None
+            ),
             "have_configurable_keys": sorted(list(configurable.keys())),
         }
     store = runtime.store if runtime.store is not None else get_agent_memory_store()
@@ -97,5 +109,11 @@ async def memo_tool(
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await store.aput(namespace, str(uuid.uuid4()), payload)
-    logger.info("memo_tool stored memory: user_id=%s unit_id=%s category=%s trigger=%s", user_id, unit_id, category, trigger)
+    logger.info(
+        "memo_tool stored memory: user_id=%s unit_id=%s category=%s trigger=%s",
+        user_id,
+        unit_id,
+        category,
+        trigger,
+    )
     return {"status": "success", "stored": True}

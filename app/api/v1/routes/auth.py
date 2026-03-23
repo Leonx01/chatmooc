@@ -55,4 +55,3 @@ async def get_current_user(
             detail="用户不存在",
         )
     return user
-

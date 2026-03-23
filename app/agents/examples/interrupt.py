@@ -4,7 +4,7 @@ from typing import TypedDict
 from langchain.tools import tool
 from langchain_anthropic import ChatAnthropic
 from langgraph.checkpoint.sqlite import SqliteSaver
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
 
 
@@ -17,13 +17,15 @@ def send_email(to: str, subject: str, body: str):
     """Send an email to a recipient."""
 
     # Pause before sending; payload surfaces in result["__interrupt__"]
-    response = interrupt({
-        "action": "send_email",
-        "to": to,
-        "subject": subject,
-        "body": body,
-        "message": "Approve sending this email?",
-    })
+    response = interrupt(
+        {
+            "action": "send_email",
+            "to": to,
+            "subject": subject,
+            "body": body,
+            "message": "Approve sending this email?",
+        }
+    )
 
     if response.get("action") == "approve":
         final_to = response.get("to", to)
@@ -58,7 +60,10 @@ config = {"configurable": {"thread_id": "email-workflow"}}
 initial = graph.invoke(
     {
         "messages": [
-            {"role": "user", "content": "Send an email to alice@example.com about the meeting"}
+            {
+                "role": "user",
+                "content": "Send an email to alice@example.com about the meeting",
+            }
         ]
     },
     config=config,

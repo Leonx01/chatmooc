@@ -13,13 +13,15 @@ from app.agents.llm_factory import get_llm
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROMPT_PATH = BASE_DIR / "prompts" / "exercise.md"
 
+
 def get_exercise_prompt() -> str:
     """懒加载 Prompt 内容"""
     global _EXERCISE_PROMPT
-    if '_EXERCISE_PROMPT' not in globals():
+    if "_EXERCISE_PROMPT" not in globals():
         with open(PROMPT_PATH, "r", encoding="utf-8") as f:
             _EXERCISE_PROMPT = f.read()
     return _EXERCISE_PROMPT
+
 
 class ExerciseInput(BaseModel):
     information: str = Field(..., description="学习内容")
@@ -29,6 +31,7 @@ class ExerciseInput(BaseModel):
     @classmethod
     def validate_count(cls, v):
         return max(3, min(5, v))
+
 
 # ===== Tool =====
 @tool("exercise_generate_tool", args_schema=ExerciseInput)
@@ -80,7 +83,10 @@ async def exercise_generate_tool(
             end = clean_content.rfind("]") + 1
             generated_exercise = json.loads(clean_content[start:end])
         except Exception as e:
-            return {"status": "failed", "message": f"JSON Parse error: {e}. Content: {content[:100]}"}
+            return {
+                "status": "failed",
+                "message": f"JSON Parse error: {e}. Content: {content[:100]}",
+            }
 
     # 4️⃣ 校验与返回
     if not isinstance(generated_exercise, list):
@@ -92,6 +98,8 @@ async def exercise_generate_tool(
         "count": len(generated_exercise[:5]),
         "status": "success",
     }
+
+
 if __name__ == "__main__":
     test_input = """
     Redis 是一种基于内存的键值存储系统，常用于缓存、分布式锁和消息队列。

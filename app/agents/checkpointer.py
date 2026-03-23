@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import logging
 import asyncio
+import logging
 from typing import Optional
 
 from langgraph.checkpoint.memory import InMemorySaver
@@ -21,7 +21,9 @@ def _resolve_redis_url() -> str:
 
     password = (settings.REDIS_PASSWORD or "").strip()
     auth = f":{password}@" if password else ""
-    return f"redis://{auth}{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}"
+    return (
+        f"redis://{auth}{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}"
+    )
 
 
 def get_agent_checkpointer():

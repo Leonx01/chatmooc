@@ -4,15 +4,18 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from prometheus_fastapi_instrumentator import Instrumentator
 
-from app.api.v1.router import api_router
-from app.agents.checkpointer import close_agent_checkpointer, init_agent_checkpointer
-from app.agents.memory_store import close_agent_memory_store, init_agent_memory_store
+from app.agents.checkpointer import (close_agent_checkpointer,
+                                     init_agent_checkpointer)
+from app.agents.memory_store import (close_agent_memory_store,
+                                     init_agent_memory_store)
 from app.agents.tutor_agent import get_agent
+from app.api.v1.router import api_router
 from app.core.celery_core import celery_app
 from app.core.config import settings
-from app.core.storage import resolve_local_parsed_dir, resolve_local_storage_dir
-from prometheus_fastapi_instrumentator import Instrumentator
+from app.core.storage import (resolve_local_parsed_dir,
+                              resolve_local_storage_dir)
 
 logger = logging.getLogger("chatmooc.app")
 

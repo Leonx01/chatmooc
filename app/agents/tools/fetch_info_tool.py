@@ -1,13 +1,14 @@
 import asyncio
+import logging
 import time
 from typing import Any
+
 import pytest
 from langchain.tools import ToolRuntime
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
 from app.core.milvus_core import vector_manager
-import logging
 
 logger = logging.getLogger(__name__)
 EMBED_TIMEOUT_SEC = 45
@@ -21,9 +22,9 @@ class FetchInfoInput(BaseModel):
 
 @tool("fetch_info", args_schema=FetchInfoInput)
 async def fetch_info_tool(
-        query: str,
-        runtime: ToolRuntime,
-        top_k: int = 5,
+    query: str,
+    runtime: ToolRuntime,
+    top_k: int = 5,
 ) -> dict[str, Any]:
     """
     Semantic Search & Technical Documentation Retrieval Tool.
@@ -58,7 +59,10 @@ async def fetch_info_tool(
     vector_store = vector_manager.store
 
     if vector_store is None:
-        return {"status": "error", "message": "Knowledge base (Milvus) is not initialized."}
+        return {
+            "status": "error",
+            "message": "Knowledge base (Milvus) is not initialized.",
+        }
 
     config = runtime.config or {}
     configurable = (config or {}).get("configurable") or {}
@@ -94,7 +98,9 @@ async def fetch_info_tool(
             "status": "failed",
             "message": "fetch_info_tool requires runtime.context/resource_ids and user_id.",
             "required_keys": ["resource_ids", "user_id"],
-            "have_context_keys": sorted(list(context.keys())) if isinstance(context, dict) else None,
+            "have_context_keys": (
+                sorted(list(context.keys())) if isinstance(context, dict) else None
+            ),
             "have_configurable_keys": sorted(list(configurable.keys())),
         }
 
@@ -132,7 +138,11 @@ async def fetch_info_tool(
             ),
         }
     except Exception as e:
-        return {"status": "error", "error_code": "embed_failed", "message": f"Embedding failed: {str(e)}"}
+        return {
+            "status": "error",
+            "error_code": "embed_failed",
+            "message": f"Embedding failed: {str(e)}",
+        }
 
     try:
         search_started = time.monotonic()
@@ -158,7 +168,11 @@ async def fetch_info_tool(
             ),
         }
     except Exception as e:
-        return {"status": "error", "error_code": "search_failed", "message": f"Search failed: {str(e)}"}
+        return {
+            "status": "error",
+            "error_code": "search_failed",
+            "message": f"Search failed: {str(e)}",
+        }
 
     logger.warning(
         "[fetch_info_tool.total_done] elapsed_ms=%s results=%s",
@@ -173,18 +187,20 @@ async def fetch_info_tool(
     formatted_docs = []
     combined_texts = []
     for doc, score in docs_with_scores:
-        formatted_docs.append({
-            "content": doc.page_content,
-            "score": float(score),
-            "metadata": doc.metadata
-        })
+        formatted_docs.append(
+            {
+                "content": doc.page_content,
+                "score": float(score),
+                "metadata": doc.metadata,
+            }
+        )
         combined_texts.append(f"[匹配度: {score:.4f}]\n{doc.page_content}")
 
     return {
         "status": "success",
         "data": "\n\n---\n\n".join(combined_texts),
         "content": formatted_docs,  # 供内部逻辑使用的结构化数据
-        "count": len(formatted_docs)
+        "count": len(formatted_docs),
     }
 
 

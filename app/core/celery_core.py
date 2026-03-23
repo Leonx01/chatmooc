@@ -46,4 +46,3 @@ if os.name == "nt":
         worker_pool="solo",
         worker_concurrency=1,
     )
-

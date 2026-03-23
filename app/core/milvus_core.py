@@ -11,6 +11,7 @@ from pymilvus.milvus_client import MilvusClient
 from .config import settings
 from .embed_core import get_embedding_model
 
+
 class VectorStoreManager:
     def __init__(self):
         self._store: Milvus | None = None

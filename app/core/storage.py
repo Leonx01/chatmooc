@@ -24,7 +24,9 @@ class StorageBackend:
     def save_bytes(self, data: bytes, filename: str | None = None) -> StoredObject:
         raise NotImplementedError
 
-    def save_file(self, file_obj: BinaryIO, filename: str | None = None) -> StoredObject:
+    def save_file(
+        self, file_obj: BinaryIO, filename: str | None = None
+    ) -> StoredObject:
         raise NotImplementedError
 
     def get_url(self, key: str) -> str:
@@ -66,7 +68,9 @@ class LocalStorageBackend(StorageBackend):
         path.write_bytes(data)
         return StoredObject(provider=self.provider, key=key, url=self.get_url(key))
 
-    def save_file(self, file_obj: BinaryIO, filename: str | None = None) -> StoredObject:
+    def save_file(
+        self, file_obj: BinaryIO, filename: str | None = None
+    ) -> StoredObject:
         key = self._build_key(filename)
         path = self.base_dir / key
         with path.open("wb") as handle:
@@ -80,7 +84,14 @@ class LocalStorageBackend(StorageBackend):
 class OSSStorageBackend(StorageBackend):
     provider = "oss"
 
-    def __init__(self, endpoint: str, bucket: str, access_key: str, secret_key: str, public_base_url: str):
+    def __init__(
+        self,
+        endpoint: str,
+        bucket: str,
+        access_key: str,
+        secret_key: str,
+        public_base_url: str,
+    ):
         self.endpoint = endpoint
         self.bucket = bucket
         self.access_key = access_key
@@ -88,10 +99,16 @@ class OSSStorageBackend(StorageBackend):
         self.public_base_url = public_base_url.rstrip("/")
 
     def save_bytes(self, data: bytes, filename: str | None = None) -> StoredObject:
-        raise RuntimeError("OSS backend is not implemented yet. Configure a client before enabling it.")
+        raise RuntimeError(
+            "OSS backend is not implemented yet. Configure a client before enabling it."
+        )
 
-    def save_file(self, file_obj: BinaryIO, filename: str | None = None) -> StoredObject:
-        raise RuntimeError("OSS backend is not implemented yet. Configure a client before enabling it.")
+    def save_file(
+        self, file_obj: BinaryIO, filename: str | None = None
+    ) -> StoredObject:
+        raise RuntimeError(
+            "OSS backend is not implemented yet. Configure a client before enabling it."
+        )
 
     def get_url(self, key: str) -> str:
         if not self.public_base_url:

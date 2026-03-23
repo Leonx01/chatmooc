@@ -1,6 +1,8 @@
 import asyncio
 import logging
+
 from sqlalchemy import select
+
 from app.core.celery_core import celery_app
 from app.core.mysql_core import db_manager
 from app.models import Resources
@@ -30,6 +32,7 @@ async def _reset_resource_status_to_pending(rid: str) -> None:
         resource.status = 0  # pending
         await session.flush()
 
+
 @celery_app.task(
     name="chatmooc.parse_resource",
     bind=True,
@@ -58,7 +61,9 @@ def parse_resource_task(self, payload: dict) -> dict:
         try:
             loop.run_until_complete(_reset_resource_status_to_pending(rid))
         except Exception:
-            logger.exception("Failed to reset resource status after parse error, rid=%s", rid)
+            logger.exception(
+                "Failed to reset resource status after parse error, rid=%s", rid
+            )
         raise
 
     return {

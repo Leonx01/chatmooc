@@ -17,7 +17,7 @@ PROMPT_PATH = BASE_DIR / "prompts" / "flashcards.md"
 def get_flashcard_prompt() -> str:
     """懒加载 Prompt，避免 import 时进行 IO 操作"""
     global _FLASHCARD_PROMPT
-    if '_FLASHCARD_PROMPT' not in globals():
+    if "_FLASHCARD_PROMPT" not in globals():
         with open(PROMPT_PATH, "r", encoding="utf-8") as f:
             _FLASHCARD_PROMPT = f.read()
     return _FLASHCARD_PROMPT
@@ -37,33 +37,33 @@ class FlashcardInput(BaseModel):
 # ===== Tool =====
 @tool("flashcards_generate_tool", args_schema=FlashcardInput)
 async def flashcards_generate_tool(
-        information: str,
-        count: int = 3,
+    information: str,
+    count: int = 3,
 ) -> Union[str, dict]:
     """
-        Extracts key concepts and facts from a source text to create study flashcards.
+    Extracts key concepts and facts from a source text to create study flashcards.
 
-        This tool distills raw knowledge into a specified number of high-quality
-        learning units. Each flashcard consists of a concise question or concept
-        paired with a precise answer or explanation, optimized for active recall
-        and spaced repetition.
+    This tool distills raw knowledge into a specified number of high-quality
+    learning units. Each flashcard consists of a concise question or concept
+    paired with a precise answer or explanation, optimized for active recall
+    and spaced repetition.
 
-        Args:
-            information (str): The foundational text, technical data, or factual
-                source used to extract definitions and facts.
-            count (int, optional): The number of flashcards to generate.
-                Defaults to 3.
+    Args:
+        information (str): The foundational text, technical data, or factual
+            source used to extract definitions and facts.
+        count (int, optional): The number of flashcards to generate.
+            Defaults to 3.
 
-        Returns:
-            list[dict]: A collection of flashcard objects, each containing
-                'question' and 'answer' keys.
+    Returns:
+        list[dict]: A collection of flashcard objects, each containing
+            'question' and 'answer' keys.
 
-        Notes:
-            - The output is rendered to the user automatically via a dedicated UI
-              component.
-            - CRITICAL: To prevent redundancy, do not manually restate or
-              summarize the returned flashcards in the final text response.
-        """
+    Notes:
+        - The output is rendered to the user automatically via a dedicated UI
+          component.
+        - CRITICAL: To prevent redundancy, do not manually restate or
+          summarize the returned flashcards in the final text response.
+    """
 
     # 1️⃣ 构造 prompt
     prompt = (
@@ -96,7 +96,10 @@ async def flashcards_generate_tool(
             end = clean_content.rfind("]") + 1
             generated_flashcards = json.loads(clean_content[start:end])
         except Exception:
-            return {"status": "failed", "message": "Failed to parse JSON from LLM response."}
+            return {
+                "status": "failed",
+                "message": "Failed to parse JSON from LLM response.",
+            }
 
     # 4️⃣ 结果校验
     if not isinstance(generated_flashcards, list):
@@ -106,7 +109,7 @@ async def flashcards_generate_tool(
     return {
         "flashcards": generated_flashcards[:5],
         "count": len(generated_flashcards[:5]),
-        "status": "success"
+        "status": "success",
     }
 
 

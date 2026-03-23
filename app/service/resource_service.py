@@ -1,29 +1,27 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
-from io import BytesIO
-from pathlib import Path
 import time
 import uuid
+from io import BytesIO
+from pathlib import Path
 from typing import Any, Optional
 
-from fastapi import Depends, UploadFile
-import asyncio
 from docx import Document as DocxReader
+from fastapi import Depends, UploadFile
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from pypdf import PdfReader
 from pptx import Presentation
+from pypdf import PdfReader
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.celery_core import celery_app
 from app.core.milvus_core import vector_manager
-from app.core.storage import (
-    get_storage_backend,
-    get_storage_backend_for_provider,
-    resolve_local_parsed_dir,
-)
+from app.core.storage import (get_storage_backend,
+                              get_storage_backend_for_provider,
+                              resolve_local_parsed_dir)
 from app.models import Resources
 from app.service.user_service import get_db
 
@@ -68,12 +66,16 @@ class ResourceService:
 
     async def list_by_uid(self, uid: str) -> list[Resources]:
         result = await self._session.execute(
-            select(Resources).where(Resources.uid == uid).order_by(Resources.created_at.desc())
+            select(Resources)
+            .where(Resources.uid == uid)
+            .order_by(Resources.created_at.desc())
         )
         return list(result.scalars().all())
 
     async def get_by_rid(self, rid: str) -> Optional[Resources]:
-        result = await self._session.execute(select(Resources).where(Resources.rid == rid))
+        result = await self._session.execute(
+            select(Resources).where(Resources.rid == rid)
+        )
         return result.scalar_one_or_none()
 
     @staticmethod
@@ -224,9 +226,13 @@ class ResourceService:
                 raise ValueError("Resource storage_key is empty")
             file_path = Path(base_dir) / resource.storage_key
             if not file_path.exists():
-                raise FileNotFoundError(f"Resource file not found: {resource.storage_key}")
+                raise FileNotFoundError(
+                    f"Resource file not found: {resource.storage_key}"
+                )
             return file_path.read_bytes()
-        raise NotImplementedError(f"Storage provider {provider or '<empty>'} not supported for parsing")
+        raise NotImplementedError(
+            f"Storage provider {provider or '<empty>'} not supported for parsing"
+        )
 
     def _write_parsed_markdown(self, resource: Resources, text: str) -> Path:
         parsed_dir = resolve_local_parsed_dir()
@@ -235,7 +241,9 @@ class ResourceService:
         file_path.write_text(text, encoding="utf-8")
         return file_path
 
-    def _extract_text_from_bytes(self, payload: bytes, filename: str, rtype: Optional[str]) -> str:
+    def _extract_text_from_bytes(
+        self, payload: bytes, filename: str, rtype: Optional[str]
+    ) -> str:
         type_hint = (rtype or "").strip().lower()
         suffix = Path(filename or "").suffix.lower()
 
@@ -347,7 +355,9 @@ class ResourceService:
         return encoded[:max_bytes].decode("utf-8", errors="ignore")
 
     @staticmethod
-    def _split_by_utf8_bytes(text: str, max_bytes: int, overlap_chars: int) -> list[str]:
+    def _split_by_utf8_bytes(
+        text: str, max_bytes: int, overlap_chars: int
+    ) -> list[str]:
         pieces: list[str] = []
         cursor = 0
         text_len = len(text)
@@ -371,7 +381,9 @@ class ResourceService:
             piece = text[cursor:best_end]
             if not piece:
                 # Fallback safety for any pathological case.
-                piece = ResourceService._truncate_utf8_bytes(text[cursor:cursor + 1], max_bytes)
+                piece = ResourceService._truncate_utf8_bytes(
+                    text[cursor : cursor + 1], max_bytes
+                )
                 best_end = cursor + max(1, len(piece))
 
             pieces.append(piece)
@@ -390,7 +402,9 @@ class ResourceService:
         return base[:64]
 
     @staticmethod
-    async def _generate_summary_and_keywords(text: str) -> tuple[Optional[str], Optional[dict[str, Any]]]:
+    async def _generate_summary_and_keywords(
+        text: str,
+    ) -> tuple[Optional[str], Optional[dict[str, Any]]]:
         """
         Placeholder for future LLM pipeline.
         """

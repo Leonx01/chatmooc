@@ -6,6 +6,7 @@ from langchain_mcp_adapters.tools import load_mcp_tools
 SERPAPI_KEY = "你的_SERP_API_KEY"
 mcp_url = f"https://mcp.serpapi.com/{SERPAPI_KEY}/mcp"
 
+
 async def get_serp_tools():
     # 使用 SSE 客户端连接远程服务器
     async with MultiServerMCPClient(
@@ -15,5 +16,6 @@ async def get_serp_tools():
             # 自动加载 SerpApi 提供的 search 等工具
             tools = await load_mcp_tools(session)
             return tools
+
 
 # 之后将这些 tools 传入你的 LangGraph 节点即可

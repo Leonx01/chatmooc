@@ -1,13 +1,12 @@
 import json
+import uuid
 from functools import partial
 from pathlib import Path
 from typing import AsyncGenerator, Optional
-import uuid
 
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import FileResponse
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 # 假设你的 agent 定义在 app.agents.tutor
@@ -17,10 +16,13 @@ from app.api.v1.routes.auth import get_current_user
 from app.models import Users
 
 router = APIRouter(prefix="/chat", tags=["AI Chat"])
-DEBUG_PAGE_PATH = Path(__file__).resolve().parents[4] / "scripts" / "chat_stream_test.html"
+DEBUG_PAGE_PATH = (
+    Path(__file__).resolve().parents[4] / "scripts" / "chat_stream_test.html"
+)
 
 # 定义限流策略：AI 接口通常消耗资源较多，设置每秒 1 个，桶容量 3
 chat_limit = partial(rate_limiter, capacity=3, rate=1.0, prefix="ai_chat")
+
 
 # --- SSE Generator ---
 class ChatRequest(BaseModel):
@@ -110,7 +112,9 @@ async def langgraph_sse_generator(
 
         runtime_agent = get_agent()
         # 使用 astream_events(version="v2") 获取更细粒度事件
-        async for event in runtime_agent.astream_events(inputs, config=config, version="v2"):
+        async for event in runtime_agent.astream_events(
+            inputs, config=config, version="v2"
+        ):
             event_type = str(event.get("event", ""))
             event_name = str(event.get("name", ""))
             event_data = event.get("data", {})
@@ -152,7 +156,10 @@ async def langgraph_sse_generator(
                     yield _sse("token", {"source": source, "text": text})
                 elif text and request_data.verbose_events:
                     # 工具内部若改为流式 LLM，这里可以看到其 token（默认关闭）
-                    yield _sse("tool_token", {"source": source, "tool_name": event_name, "text": text})
+                    yield _sse(
+                        "tool_token",
+                        {"source": source, "tool_name": event_name, "text": text},
+                    )
                 continue
 
             if event_type == "on_chat_model_end":
@@ -160,7 +167,10 @@ async def langgraph_sse_generator(
                 output = event_data.get("output")
                 content = getattr(output, "content", None)
                 if content and source == "agent":
-                    yield _sse("message", {"source": source, "role": "assistant", "content": content})
+                    yield _sse(
+                        "message",
+                        {"source": source, "role": "assistant", "content": content},
+                    )
                 if request_data.verbose_events:
                     yield _sse("update", event)
                 continue
@@ -185,11 +195,13 @@ async def langgraph_sse_generator(
 
 # --- Router Endpoints ---
 
+
 @router.get("/debug-page")
 async def chat_debug_page():
     if not DEBUG_PAGE_PATH.exists():
         return {"error": f"debug page not found: {DEBUG_PAGE_PATH}"}
     return FileResponse(str(DEBUG_PAGE_PATH), media_type="text/html")
+
 
 @router.post("/stream", dependencies=[Depends(chat_limit)])
 async def chat_stream(
@@ -209,5 +221,5 @@ async def chat_stream(
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
             "Content-Type": "text/event-stream",
-        }
+        },
     )

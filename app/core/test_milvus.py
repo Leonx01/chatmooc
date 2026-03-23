@@ -1,10 +1,11 @@
-import pytest
 import asyncio
 from pprint import pprint
 
+import pytest
 
 # 确保导入了你的 hybrid_manager 实例
 from app.core.milvus_core_v2 import hybrid_manager
+
 
 @pytest.mark.asyncio  # <--- 关键：告诉 pytest 这是一个异步测试
 async def test_hybrid_workflow():
@@ -17,7 +18,7 @@ async def test_hybrid_workflow():
     test_texts = [
         "人工智能是大数据的核心应用场景。",
         "深度学习通过多层神经网络提取特征。",
-        "向量数据库是 RAG 架构中的重要组件。"
+        "向量数据库是 RAG 架构中的重要组件。",
     ]
     parent_texts = ["AI概论", "深度学习基础", "RAG架构指南"]
 
@@ -35,7 +36,7 @@ async def test_hybrid_workflow():
         texts=test_texts,
         parent_texts=parent_texts,
         user_id=user_id,
-        resource_id=resource_id
+        resource_id=resource_id,
     )
     print(f"插入完成，影响行数: {upsert_res.get('insert_count')}")
 
@@ -47,10 +48,7 @@ async def test_hybrid_workflow():
     print("\n[步骤 2] 执行混合检索测试...")
     query = "什么是 RAG？"
     search_results = await hybrid_manager.hybrid_search(
-        query=query,
-        user_id=user_id,
-        resource_ids=[resource_id],
-        top_k=2
+        query=query, user_id=user_id, resource_ids=[resource_id], top_k=2
     )
 
     # 6. 断言验证
@@ -58,7 +56,10 @@ async def test_hybrid_workflow():
     pprint(search_results)
 
     assert len(search_results) > 0, "检索结果不应为空"
-    assert "RAG" in search_results[0]["content"] or "向量数据库" in search_results[0]["content"]
+    assert (
+        "RAG" in search_results[0]["content"]
+        or "向量数据库" in search_results[0]["content"]
+    )
     assert search_results[0]["resource_id"] == resource_id
 
     print("\n✅ 测试圆满通过！")

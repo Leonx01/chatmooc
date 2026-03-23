@@ -15,7 +15,9 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-MemoryStore = AsyncRedisStore if InMemoryStore is None else Union[AsyncRedisStore, InMemoryStore]
+MemoryStore = (
+    AsyncRedisStore if InMemoryStore is None else Union[AsyncRedisStore, InMemoryStore]
+)
 _agent_memory_store: Optional[MemoryStore] = None
 _agent_memory_store_cm: Optional[Any] = None
 
@@ -27,7 +29,9 @@ def _resolve_redis_url() -> str:
 
     password = (settings.REDIS_PASSWORD or "").strip()
     auth = f":{password}@" if password else ""
-    return f"redis://{auth}{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}"
+    return (
+        f"redis://{auth}{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}"
+    )
 
 
 def get_agent_memory_store():

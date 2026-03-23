@@ -1,12 +1,15 @@
-import jwt
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Any, Dict
+from typing import Any, Dict, Optional
+
+import jwt
+
 
 class JWTTool:
     """
     JWT 工具类：用于生成和校验加密令牌
     """
+
     # 建议生产环境从环境变量读取，如 os.getenv("JWT_SECRET")
     SECRET_KEY = "10f5a41be8bfc3b73cb9d5e05caa90e07aea782ac3bd52d2da0b7504f48f4d58"
     ALGORITHM = "HS256"
@@ -14,9 +17,7 @@ class JWTTool:
 
     @classmethod
     def create_access_token(
-            cls,
-            data: Dict[str, Any],
-            expires_delta: Optional[timedelta] = None
+        cls, data: Dict[str, Any], expires_delta: Optional[timedelta] = None
     ) -> str:
         """
         生成 JWT Token
@@ -29,14 +30,18 @@ class JWTTool:
         if expires_delta:
             expire = datetime.now(timezone.utc) + expires_delta
         else:
-            expire = datetime.now(timezone.utc) + timedelta(minutes=cls.ACCESS_TOKEN_EXPIRE_MINUTES)
+            expire = datetime.now(timezone.utc) + timedelta(
+                minutes=cls.ACCESS_TOKEN_EXPIRE_MINUTES
+            )
 
         # 标准字段：exp (过期时间), iat (发行时间), jti (唯一标识)
-        to_encode.update({
-            "exp": expire,
-            "iat": datetime.now(timezone.utc),
-            "jti": str(uuid.uuid4())  # 每次生成 Token 都有唯一的 ID
-        })
+        to_encode.update(
+            {
+                "exp": expire,
+                "iat": datetime.now(timezone.utc),
+                "jti": str(uuid.uuid4()),  # 每次生成 Token 都有唯一的 ID
+            }
+        )
 
         encoded_jwt = jwt.encode(to_encode, cls.SECRET_KEY, algorithm=cls.ALGORITHM)
         return encoded_jwt
@@ -65,11 +70,7 @@ class JWTTool:
 # ===== 使用示例 =====
 if __name__ == "__main__":
     # 1. 模拟登录，存入用户 ID 和生成的 UUID 会话
-    user_session = {
-        "sub": "user_12345",
-        "sid": str(uuid.uuid4()),
-        "role": "admin"
-    }
+    user_session = {"sub": "user_12345", "sid": str(uuid.uuid4()), "role": "admin"}
 
     token = JWTTool.create_access_token(data=user_session)
     print(f"Generated JWT: {token}")

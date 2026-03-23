@@ -21,6 +21,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip' # 激活依赖缓存，加快运行速度
 
       - name: Install dependencies
         run: |
@@ -47,16 +48,17 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
           pip install uv
-          uv pip install --system -e .
+          uv pip install --system -e .[test] # 建议在 pyproject.toml 配置 test 依赖组
 
       - name: Run unit tests
         env:
           PYTHONPATH: .
-          REDIS_URL: redis://localhost:6379
+          REDIS_URL: redis://localhost:6379/0
           MYSQL_HOST: 127.0.0.1
           MYSQL_PORT: 3306
           MYSQL_DATABASE: test_chatmooc
@@ -65,7 +67,8 @@ jobs:
           MILVUS_HOST: localhost
           MILVUS_PORT: 19530
         run: |
-          pytest tests/ -m unit -v --ignore=tests/test_integration || true
+          # 移除了 || true，确保单元测试失败时能阻断流水线
+          pytest tests/ -m unit -v --ignore=tests/test_integration
 
   test-integration:
     name: Integration Tests
@@ -75,6 +78,10 @@ jobs:
         image: redis:7-alpine
         ports:
           - 6379:6379
+      rabbitmq:
+        image: rabbitmq:3-management
+        ports:
+          - 5672:5672
       mysql:
         image: mysql:8.4
         env:
@@ -100,17 +107,40 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
           pip install uv
-          uv pip install --system -e .
+          uv pip install --system -e .[test]
+          sudo apt-get update && sudo apt-get install -y mysql-client netcat-traditional
+
+      - name: Wait for MySQL and RabbitMQ
+        run: |
+          echo "Waiting for MySQL..."
+          for i in {1..30}; do
+            if mysqladmin ping -h "127.0.0.1" -uroot -proot --silent; then
+              echo "MySQL is ready!"
+              break
+            fi
+            sleep 2
+          done
+          
+          echo "Waiting for RabbitMQ..."
+          for i in {1..30}; do
+            if nc -z localhost 5672; then
+              echo "RabbitMQ is ready!"
+              break
+            fi
+            sleep 2
+          done
 
       - name: Run integration tests
         env:
           PYTHONPATH: .
-          REDIS_URL: redis://localhost:6379
-          MYSQL_HOST: localhost
+          REDIS_URL: redis://localhost:6379/0
+          CELERY_BROKER_URL: amqp://guest:guest@localhost:5672//
+          MYSQL_HOST: 127.0.0.1 # 这里从 localhost 改为了 127.0.0.1 避免 socket 连接问题
           MYSQL_PORT: 3306
           MYSQL_DATABASE: test_chatmooc
           MYSQL_USER: root
@@ -119,7 +149,8 @@ jobs:
           MILVUS_PORT: 19530
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY || 'dummy-key-for-ci' }}
         run: |
-          pytest tests/ -m integration -v || true
+          # 移除了 || true，真正的 CI 必须对失败零容忍
+          pytest tests/ -m integration -v
 
   build:
     name: Build Check

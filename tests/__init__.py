@@ -1,0 +1,1 @@
+"""ChatMooc test suite."""

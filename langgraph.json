@@ -1,0 +1,11 @@
+{
+  "$schema": "https://langgra.ph/schema.json",
+  "dependencies": ["."],
+  "graphs": {
+    "tutor": "./app/agents/tutor_agent.py:agent",
+    "planner":"./app/agents/planner_agent.py:graph"
+  },
+  "env": ".env",
+  "image_distro": "wolfi"
+}
+

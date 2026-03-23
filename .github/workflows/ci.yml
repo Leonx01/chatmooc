@@ -32,10 +32,10 @@ jobs:
         run: ruff check app/
 
       - name: Check code formatting
-        run: black --check app/
+        run: black --check app/ --target-version py312
 
       - name: Check imports
-        run: isort --check-only app/
+        run: isort --check-only app/ --line-length 88
 
   test-unit:
     name: Unit Tests

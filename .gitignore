@@ -81,3 +81,10 @@ cache/
 
 # Test environment
 .env.test
+
+# HTTP test files
+*.http
+
+# Database files
+db/*.sql
+db/*.mc

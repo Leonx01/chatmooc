@@ -91,3 +91,4 @@ cache/
 # Database files
 db/*.sql
 db/*.mc
+db/migrations

@@ -4,10 +4,15 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.api.v1.routes.auth import get_current_user
 from app.models import Users
-from app.schema.resources import (ResourceGetIn, ResourceGetResponse,
-                                  ResourceListResponse, ResourceOut,
-                                  ResourceParseResponse, ResourceUploadIn,
-                                  ResourceUploadResponse)
+from app.schema.resources import (
+    ResourceGetIn,
+    ResourceGetResponse,
+    ResourceListResponse,
+    ResourceOut,
+    ResourceParseResponse,
+    ResourceUploadIn,
+    ResourceUploadResponse,
+)
 from app.service.resource_service import ResourceService, get_resource_service
 
 router = APIRouter(prefix="/resources", tags=["resources"])

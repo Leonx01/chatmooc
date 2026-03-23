@@ -11,12 +11,16 @@ from langgraph.prebuilt import ToolNode
 from pydantic import BaseModel, Field
 
 # 1. 改为导入工厂函数，不要导入实例化的 llm
-from app.agents.checkpointer import (ensure_agent_checkpointer_sync,
-                                     get_agent_checkpointer)
+from app.agents.checkpointer import (
+    ensure_agent_checkpointer_sync,
+    get_agent_checkpointer,
+)
 from app.agents.llm_factory import get_llm
-from app.agents.memory_store import (ensure_agent_memory_store_sync,
-                                     get_agent_memory_store,
-                                     init_agent_memory_store)
+from app.agents.memory_store import (
+    ensure_agent_memory_store_sync,
+    get_agent_memory_store,
+    init_agent_memory_store,
+)
 from app.agents.tools import TOOLS
 from app.core.config import settings
 

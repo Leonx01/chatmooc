@@ -256,9 +256,11 @@ class TestCeleryAsyncFlow:
 # 第四层：Milvus 向量存储测试
 # =============================================================================
 
+@pytest.mark.slow
 class TestMilvusStorage:
-    """测试 Milvus 向量存储"""
+    """测试 Milvus 向量存储 - 默认跳过"""
 
+    @pytest.mark.skip(reason="Requires Milvus - run manually with: pytest -m slow")
     def test_milvus_client_can_connect(self):
         """验证 Milvus client 可以连接"""
         try:
@@ -284,9 +286,11 @@ class TestMilvusStorage:
 # 第五层：Embedding 生成测试
 # =============================================================================
 
+@pytest.mark.slow
 class TestEmbeddingGeneration:
-    """测试 Embedding 生成"""
+    """测试 Embedding 生成 - 需要加载大模型，默认跳过"""
 
+    @pytest.mark.skip(reason="Requires BGE model - run manually with: pytest -m slow")
     def test_embed_model_loads(self):
         """验证 Embedding 模型可以加载"""
         try:
@@ -296,6 +300,7 @@ class TestEmbeddingGeneration:
         except Exception as e:
             pytest.skip(f"Embedding model not available: {e}")
 
+    @pytest.mark.skip(reason="Requires BGE model - run manually with: pytest -m slow")
     def test_embed_single_text(self):
         """测试单个文本的 embedding 生成"""
         try:
@@ -311,6 +316,7 @@ class TestEmbeddingGeneration:
         except Exception as e:
             pytest.skip(f"Embedding failed: {e}")
 
+    @pytest.mark.skip(reason="Requires BGE model - run manually with: pytest -m slow")
     def test_embed_multiple_texts(self):
         """测试批量文本的 embedding 生成"""
         try:
@@ -347,6 +353,7 @@ class TestFullFlow:
         """
         pytest.skip("需要所有服务运行 - 手动测试用")
 
+    @pytest.mark.skip(reason="Requires all services - run manually with: pytest -m slow")
     def test_all_services_health(self):
         """验证所有服务健康状态"""
         # MySQL

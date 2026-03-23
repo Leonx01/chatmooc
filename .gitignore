@@ -57,3 +57,27 @@ Thumbs.db
 
 # Docker volumes
 volumes/
+
+# LangGraph (runtime files)
+.langgraph_api/
+.langgraph/
+langgraph.json
+
+# Claude Code settings
+.claude/
+
+# Node modules (if any)
+node_modules/
+
+# Temp files
+*.tmp
+*.temp
+cache/
+*.mc
+
+# Windows/PowerShell
+*.ps1
+!scripts/*.ps1
+
+# Test environment
+.env.test

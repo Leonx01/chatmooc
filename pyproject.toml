@@ -54,3 +54,11 @@ dependencies = [
 [tool.setuptools]
 package-dir = {"" = "."}
 packages = ["app"]
+
+[tool.black]
+target-version = ["py312"]
+line-length = 88
+
+[tool.isort]
+profile = "black"
+line_length = 88

@@ -1,8 +1,16 @@
 import datetime
 from typing import Optional
 
-from sqlalchemy import (JSON, DateTime, ForeignKeyConstraint, Index, Integer,
-                        String, Text, text)
+from sqlalchemy import (
+    JSON,
+    DateTime,
+    ForeignKeyConstraint,
+    Index,
+    Integer,
+    String,
+    Text,
+    text,
+)
 from sqlalchemy.dialects.mysql import CHAR, INTEGER, LONGTEXT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

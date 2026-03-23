@@ -80,7 +80,9 @@ cache/
 
 # Windows/PowerShell
 *.ps1
-!scripts/*.ps1
+
+# Scripts directory
+scripts/
 
 # Test environment
 .env.test

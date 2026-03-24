@@ -283,9 +283,6 @@ pip install -e .
 ### 数据库迁移
 如需更新数据库架构，参考 `db/schema.md`
 
-## 📄 许可证
-
-[待定 - 请选择合适的许可证]
 
 ## 👤 作者
 
@@ -295,12 +292,6 @@ pip install -e .
 
 欢迎提交 Pull Request 和 Issue！
 
-## 📞 支持
-
-遇到问题？请：
-1. 查看 `CLAUDE.md` 中的故障排除部分
-2. 提交 GitHub Issue
-3. 联系开发者
 
 ## 📚 更多资源
 

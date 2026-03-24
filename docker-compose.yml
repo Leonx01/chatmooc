@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   # =========================
-  # Ollama (Embedding 服务)
+  # Ollama
   # =========================
   ollama:
     image: ollama/ollama:latest
@@ -10,7 +10,6 @@ services:
     ports:
       - "11434:11434"
     volumes:
-      # 统一改为路径挂载，数据会存在当前目录的 volumes/ollama 下
       - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/ollama:/root/.ollama
     deploy:
       resources:
@@ -155,5 +154,3 @@ services:
 networks:
   chatmooc_net:
     name: chatmooc_internal
-
-# 注意：底部的顶级 volumes 模块现在被彻底删除了，因为不再有“命名卷”了。

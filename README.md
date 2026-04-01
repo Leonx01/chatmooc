@@ -9,14 +9,42 @@ ChatMooc 是一个 AI 驱动的个性化学习平台，使用 LangGraph 代理�
 
 ## ✨ 主要特性
 
-- 🤖 **智能导师代理** - 基于 LangGraph 的高级 AI 代理系统
-- 📚 **资源管理** - 支持多种文档格式（PDF、Word、PowerPoint）
-- 🎯 **个性化学习路径** - 根据用户进度动态规划学习计划
-- 💾 **向量数据库** - 使用 Milvus 进行高效的语义搜索
-- ⚡ **异步处理** - 通过 Celery 实现后台任务队列
-- 🔐 **JWT 认证** - 完整的用户身份验证和授权
-- 🌊 **实时流式响应** - SSE（Server-Sent Events）支持实时流式输出
-- 📊 **多 LLM 支持** - 支持 OpenAI、DeepSeek、Ollama 等
+- 🔗 **跨平台生态集成（OAuth2.0）**
+  - GitHub / Notion OAuth2.0 授权 + 注册/登录打通
+  - 已授权资源一键导入（跨平台知识迁移 → 快速建库）
+
+- 🧵 **高并发异步知识处理（RabbitMQ + Celery）**
+  - 任务链路：上传 → 文本解析 → 元数据分析（摘要/关键词）→ 向量化 → 入库
+  - 解耦 IO / CPU 密集型阶段，支持水平扩展 worker
+
+- 🧠 **语义检索基座（Milvus Vector DB）**
+  - 语义索引持久化：Embedding → Milvus → 高性能 TopK 检索
+  - 为上层 Agent / Workflow 提供低延迟知识检索能力
+
+- 🕸️ **Agentic 学习工作流（LangGraph）**
+  - 学习目标自动拆解 + 学习路径规划
+  - 节点并行生成教学单元内容，提升吞吐与生成稳定性
+  - ReAct 智能助教：工具调用 + 反思迭代 + 上下文感知对话
+
+- 🗂️ **长期记忆系统（Progressive Memory）**
+  - 渐进式记忆架构：偏好 / 学习进度 / 历史交互
+  - Agent 主动写入 + 系统异步更新，降低对话态状态膨胀
+
+- 🧰 **工具集成体系（MCP + Function Calling + Interrupt）**
+  - MCP 协议适配 + 工具动态注册/路由
+  - 多源检索（联网 / 知识库）、记忆读写、习题/闪卡生成、Notion 协作
+  - Interrupt 拦截中间件 + 工具许可列表（敏感操作 100% 拦截）
+
+- 🛰️ **透明链路追踪（SSE + Event-Driven）**
+  - Agent 执行状态实时流式推送：计划 / 检索 / 生成 / 工具调用全链路可见
+
+- 💸 **资源成本控制（Token Accounting）**
+  - 用量统计中间件：Tiktoken 预估 → Redis 原子扣费 → 实际用量回滚修正
+  - Token 成本可观测、可审计、可限额
+
+- 🚦 **并发限流与稳定性（Nginx + Redis Lua）**
+  - Nginx 多实例横向扩展
+  - Redis + Lua 实现令牌桶限流
 
 ## 📋 前置要求
 
